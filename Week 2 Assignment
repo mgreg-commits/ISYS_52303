@@ -1,0 +1,136 @@
+##This is the first iteration using ChatGPT for the code
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+sp500_data = pd.read_csv('week_2_data.csv')
+
+# Ensure required columns are present and drop rows with missing values
+required_columns = ['gvkey', 'conm', 'atq', 'ltq', 'wcapq', 'oibdpq', 'mkvaltq', 'saleq']
+filtered_data = sp500_data[required_columns].dropna()
+
+# Calculate Altman Z-Score
+filtered_data['z_score'] = (
+    1.2 * (filtered_data['wcapq'] / filtered_data['atq']) +
+    1.4 * (filtered_data['oibdpq'] / filtered_data['atq']) +
+    3.3 * (filtered_data['oibdpq'] / filtered_data['atq']) +  # EBIT approximated by oibdpq
+    0.6 * (filtered_data['mkvaltq'] / filtered_data['ltq']) +
+    1.0 * (filtered_data['saleq'] / filtered_data['atq'])
+)
+
+# Sort the data by Z-score
+sorted_data = filtered_data.sort_values(by='z_score', ascending=False)
+
+# Plot the Z-scores
+plt.figure(figsize=(12, 8))
+plt.barh(sorted_data['conm'], sorted_data['z_score'], color='skyblue')
+plt.xlabel('Altman Z-Score')
+plt.ylabel('Company Name')
+plt.title('Altman Z-Score of S&P 500 Companies')
+plt.tight_layout()
+plt.show()
+
+
+###This is the second Iteration of the graph
+
+# Load the dataset
+sp500_data = pd.read_csv('week_2_data.csv')
+
+# Ensure required columns are present and drop rows with missing values
+required_columns = ['gvkey', 'conm', 'atq', 'ltq', 'wcapq', 'oibdpq', 'mkvaltq', 'saleq']
+filtered_data = sp500_data[required_columns].dropna()
+
+# Calculate Altman Z-Score
+filtered_data['z_score'] = (
+    1.2 * (filtered_data['wcapq'] / filtered_data['atq']) +
+    1.4 * (filtered_data['oibdpq'] / filtered_data['atq']) +
+    3.3 * (filtered_data['oibdpq'] / filtered_data['atq']) +  # EBIT approximated by oibdpq
+    0.6 * (filtered_data['mkvaltq'] / filtered_data['ltq']) +
+    1.0 * (filtered_data['saleq'] / filtered_data['atq'])
+)
+
+# Sort the data by Z-score and get the top 20 and bottom 20
+sorted_data = filtered_data.sort_values(by='z_score', ascending=False)
+top_20 = sorted_data.head(20)
+bottom_20 = sorted_data.tail(20)
+combined_data = pd.concat([top_20, bottom_20])
+
+# Calculate the median Z-score
+median_z_score = filtered_data['z_score'].median()
+
+# Plot the Z-scores
+plt.figure(figsize=(12, 10))
+bars = plt.barh(combined_data['conm'], combined_data['z_score'], color='skyblue')
+
+# Add a vertical line for the median Z-score
+plt.axvline(median_z_score, color='black', linestyle='--', linewidth=1, label=f"Median Z-Score ({median_z_score:.2f})")
+
+# Highlight the "safe," "gray," and "distress" zones
+plt.axvspan(2.99, max(combined_data['z_score']), color='green', alpha=0.1, label="Safe Zone (Z > 2.99)")
+plt.axvspan(1.81, 2.99, color='yellow', alpha=0.1, label="Gray Zone (1.81 ≤ Z ≤ 2.99)")
+plt.axvspan(min(combined_data['z_score']), 1.81, color='red', alpha=0.1, label="Distress Zone (Z < 1.81)")
+
+# Add labels and legend
+plt.xlabel('Altman Z-Score')
+plt.ylabel('Company Name')
+plt.title('Top 20 and Bottom 20 Altman Z-Scores with Zones')
+plt.legend(loc='upper right')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+
+##This is the third and final iteration when I got the graph that I wanted
+
+# Load the dataset
+sp500_data = pd.read_csv('week_2_data.csv')
+
+# Ensure required columns are present and drop rows with missing values
+required_columns = ['gvkey', 'conm', 'atq', 'ltq', 'wcapq', 'oibdpq', 'mkvaltq', 'saleq']
+filtered_data = sp500_data[required_columns].dropna()
+
+# Calculate Altman Z-Score
+filtered_data['z_score'] = (
+    1.2 * (filtered_data['wcapq'] / filtered_data['atq']) +
+    1.4 * (filtered_data['oibdpq'] / filtered_data['atq']) +
+    3.3 * (filtered_data['oibdpq'] / filtered_data['atq']) +  # EBIT approximated by oibdpq
+    0.6 * (filtered_data['mkvaltq'] / filtered_data['ltq']) +
+    1.0 * (filtered_data['saleq'] / filtered_data['atq'])
+)
+
+# Drop duplicates by company name to ensure uniqueness
+filtered_data = filtered_data.drop_duplicates(subset=['conm'])
+
+# Sort the data by Z-score
+sorted_data = filtered_data.sort_values(by='z_score', ascending=False)
+
+# Get the top 20 and bottom 20 unique companies
+top_20 = sorted_data.head(20)
+bottom_20 = sorted_data.tail(20)
+combined_data = pd.concat([top_20, bottom_20])
+
+# Calculate the median Z-score
+median_z_score = filtered_data['z_score'].median()
+
+# Plot the Z-scores
+plt.figure(figsize=(12, 14))  # Increased figure height for better readability
+bars = plt.barh(combined_data['conm'], combined_data['z_score'], color='skyblue')
+
+# Add a vertical line for the median Z-score
+plt.axvline(median_z_score, color='black', linestyle='--', linewidth=1, label=f"Median Z-Score ({median_z_score:.2f})")
+
+# Highlight the "safe," "gray," and "distress" zones
+plt.axvspan(2.99, max(combined_data['z_score']), color='green', alpha=0.1, label="Safe Zone (Z > 2.99)")
+plt.axvspan(1.81, 2.99, color='yellow', alpha=0.1, label="Gray Zone (1.81 ≤ Z ≤ 2.99)")
+plt.axvspan(min(combined_data['z_score']), 1.81, color='red', alpha=0.1, label="Distress Zone (Z < 1.81)")
+
+# Add labels and legend
+plt.xlabel('Altman Z-Score')
+plt.ylabel('Company Name')
+plt.title('Top 20 and Bottom 20 Altman Z-Scores with Zones')
+plt.legend(loc='upper right')
+plt.tight_layout()
+
+# Show the plot
+plt.show()
