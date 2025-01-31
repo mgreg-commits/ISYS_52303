@@ -1,0 +1,28 @@
+!pip install pandasai
+!pip install python-dotenv
+!pip install pandas-ai
+!pip install dataprep
+!pip install autoviz
+
+import pandas as pd
+
+df = pd.read_csv("week_2_data.csv")
+df[:10]
+
+import openai
+import os
+from dotenv import load_dotenv
+
+# Load the API key from .env
+load_dotenv()
+
+# Retrieve the API key from the environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+from pandasai.llm import OpenAI
+llm = OpenAI(api_token=os.getenv("OPENAI_API_KEY"))
+df = SmartDataframe(df, config={'llm': llm}) 
+
+result = df.chat("Perform a summary analysis and generate a bar chart based on the 'mktvaltq' column, showing the average for the first ten 'tic'. Make the Y axis in millions and use the USD format.")
+
+result = df.chat("Calculate the altman z score for the top 10 companies and graph the top 10.")
